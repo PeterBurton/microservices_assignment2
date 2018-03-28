@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+
+  rabbitmq:
+    image: rabbitmq:latest
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+  datastore:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+  
+  tweet_collection:
+    build: ./tweet_collection
+    depends_on:
+      - rabbitmq
+    environment:
+      RMQ_URI: rabbitmq:5672
+
+  sentiment_analysis:
+    build: ./sentiment_analysis
+    depends_on:
+      - rabbitmq
+      - datastore
+    environment:
+      RMQ_URI: rabbitmq:5672
+      DATASTORE_ADDR: datastore:27017
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - datastore
+    ports:
+      - 3000:3000
+    environment:
+      DATASTORE_ADDR: datastore:27017
+
