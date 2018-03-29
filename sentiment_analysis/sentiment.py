@@ -2,18 +2,17 @@ import pika
 from textblob import TextBlob
 from pymongo import MongoClient
 import datetime
-import os
 
-rmq_uri = os.getenv('RMQ_URI')
-appended_uri = "amqp://guest:guest@" + rmq_uri
-mongo_uri = os.getenv("DATASTORE_ADDR")
-app_mongo_uri = "mongodb://" + mongo_uri
+#rmq_uri = os.getenv('RMQ_URI')
+#appended_uri = "amqp://guest:guest@" + rmq_uri
+#mongo_uri = os.getenv("DATASTORE_ADDR")
+#app_mongo_uri = "mongodb://" + mongo_uri
 
-client = MongoClient(app_mongo_uri)
+client = MongoClient("datastore:27017")
 db = client.tweet_db
 col = db.polarities
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(appended_uri))
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
 channel = connection.channel() 
 channel.queue_declare(queue='tweets')
 print('********Waiting for tweets. Press CTRL+C to exit********')

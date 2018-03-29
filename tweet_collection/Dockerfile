@@ -1,10 +1,10 @@
 FROM golang:1.8
 
-WORKDIR /app
+WORKDIR /go/src/app
 COPY . .
 
 RUN go get -d ./...
-RUN go run collect_publish.go
+RUN go install ./...
 
-CMD ["app"]
+CMD ["go","run","collect_publish.go"]
 

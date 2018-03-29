@@ -6,28 +6,35 @@ services:
     image: rabbitmq:latest
     ports:
       - 5672:5672
-      - 15672:15672
+    networks:
+      - mynetwork
 
   datastore:
     image: mongo:latest
     ports:
       - 27017:27017
+    networks:
+      - mynetwork
   
   tweet_collection:
     build: ./tweet_collection
     depends_on:
       - rabbitmq
-    environment:
-      RMQ_URI: rabbitmq:5672
+    links:
+      - rabbitmq
+    networks:
+      - mynetwork
+    command: ["./wait-for-it.sh", "-t", "0", "rabbitmq:5672", "--", "go", "run", "collect_publish.go"]
+    
 
   sentiment_analysis:
     build: ./sentiment_analysis
     depends_on:
       - rabbitmq
       - datastore
-    environment:
-      RMQ_URI: rabbitmq:5672
-      DATASTORE_ADDR: datastore:27017
+    networks:
+      - mynetwork
+    command: ["./wait-for-it.sh", "-t", "0", "rabbitmq:5672", "--" ,"python", "sentiment.py"]
 
   frontend:
     build: ./frontend
@@ -35,6 +42,10 @@ services:
       - datastore
     ports:
       - 3000:3000
-    environment:
-      DATASTORE_ADDR: datastore:27017
+    networks:
+      - mynetwork
+    command: ["./wait-for-it.sh", "-t", "0", "rabbitmq:5672", "--" ,"python", "front_end.py"]
+
+networks: 
+  mynetwork:
 

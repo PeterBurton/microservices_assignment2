@@ -1,14 +1,12 @@
 package main
 
 import (
-	//"flag"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
-	//"github.com/coreos/pkg/flagutil"
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
 	"github.com/streadway/amqp"
@@ -22,12 +20,7 @@ func failOnError(err error, msg string) {
 
 func main() {
 
-	uri := os.Getenv("RMQ_URI")
-	appended_uri := "amqp://guest:guest@" + uri
-
-	conn, err := amqp.Dial(appended_uri)
-
-	//conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 

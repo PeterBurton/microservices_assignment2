@@ -2,4 +2,3 @@ pika
 textblob
 pymongo
 datetime
-os

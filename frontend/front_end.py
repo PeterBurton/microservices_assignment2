@@ -1,12 +1,11 @@
 from flask import Flask, render_template
 from pymongo import MongoClient
 import datetime
-import os
 
-mongo_uri = os.getenv("DATASTORE_ADDR")
-app_mongo_uri = "mongodb://" + mongo_uri
+#mongo_uri = os.getenv("DATASTORE_ADDR")
+#app_mongo_uri = "mongodb://" + mongo_uri
 
-client = MongoClient(app_mongo_uri)
+client = MongoClient("datastore:27017")
 db = client.tweet_db
 collection = db.polarities
 
