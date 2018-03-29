@@ -12,7 +12,7 @@ client = MongoClient("datastore:27017")
 db = client.tweet_db
 col = db.polarities
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq', heartbeat_interval=0))
 channel = connection.channel() 
 channel.queue_declare(queue='tweets')
 print('********Waiting for tweets. Press CTRL+C to exit********')
