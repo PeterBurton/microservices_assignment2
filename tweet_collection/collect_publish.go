@@ -1,5 +1,6 @@
 package main
 
+// Import all required packages
 import (
 	"fmt"
 	"log"
@@ -13,6 +14,7 @@ import (
 )
 
 func failOnError(err error, msg string) {
+	// Log any errors
 	if err != nil {
 		log.Fatalf("%s: %s", msg, err)
 	}
@@ -20,6 +22,7 @@ func failOnError(err error, msg string) {
 
 func main() {
 
+	// Connect to rabbitMQ using the docker service name as the host name
 	conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
@@ -28,6 +31,7 @@ func main() {
 	failOnError(err, "Failed to open a channel")
 	defer ch.Close()
 
+	// Declare a queue named 'tweets'
 	q, err := ch.QueueDeclare(
 		"tweets", // name
 		false,    // durable
@@ -38,14 +42,15 @@ func main() {
 	)
 	failOnError(err, "Failed to declare a queue")
 
+	// Configure httpClient with secrets/keys/tokens etc.
 	config := oauth1.NewConfig("zHi6YhB0zmqCd3nyHYqlcF1zc", "GWUHuhwGWS3OCrsEsmvL2BBnJtOap8knDfMQrsNpUmWwS3tgNC")
 	token := oauth1.NewToken("3067657355-gPeu5FJODLSIKf5spHpthxZhNGd3NQYB2ZWGAds", "Ow1HObvQMPTseNeGrO3aoQuAmrY9ranbNPgUz5u65RbEB")
 	httpClient := config.Client(oauth1.NoContext, token)
 
-	// Twitter Client
+	// initialise Twitter Client
 	client := twitter.NewClient(httpClient)
 
-	// Convenience Demux demultiplexed stream messages
+	// Demux the twitter stream, grab the body of the text that we're interested in
 	demux := twitter.NewSwitchDemux()
 	demux.Tweet = func(tweet *twitter.Tweet) {
 		body := tweet.Text
@@ -58,13 +63,12 @@ func main() {
 				ContentType: "text/plain",
 				Body:        []byte(body),
 			})
-		//log.Printf(" [x] Sent %s", body)
 		failOnError(err, "Failed to publish a message")
 	}
 
 	fmt.Println("Starting Stream...")
 
-	// FILTER
+	// Set the client to filter for a search term, in this case 'trump'
 	filterParams := &twitter.StreamFilterParams{
 		Track:         []string{"trump"},
 		StallWarnings: twitter.Bool(true),
