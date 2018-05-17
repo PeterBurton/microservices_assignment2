@@ -1,0 +1,34 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\kompose\kompose.exe convert -f docker-compose.yml
+    kompose.version: 1.13.0 (84fa826)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: tweet-collection
+  name: tweet-collection
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: tweet-collection
+    spec:
+      containers:
+      - args:
+        - ./wait-for-it.sh
+        - -t
+        - "0"
+        - rabbitmq:5672
+        - --
+        - go
+        - run
+        - collect_publish.go
+        image: pedropod/tweet_collection:latest
+        name: tweet-collection
+        resources: {}
+      restartPolicy: Always
+status: {}

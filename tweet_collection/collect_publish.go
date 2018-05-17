@@ -53,7 +53,7 @@ func main() {
 	// Demux the twitter stream, grab the body of the text that we're interested in
 	demux := twitter.NewSwitchDemux()
 	demux.Tweet = func(tweet *twitter.Tweet) {
-		body := tweet.Text
+		body := "TWEET " + tweet.Text
 		err = ch.Publish(
 			"",     // exchange
 			q.Name, // routing key
@@ -70,7 +70,7 @@ func main() {
 
 	// Set the client to filter for a search term, in this case 'trump'
 	filterParams := &twitter.StreamFilterParams{
-		Track:         []string{"trump"},
+		Track:         []string{"Trump"},
 		StallWarnings: twitter.Bool(true),
 	}
 	stream, err := client.Streams.Filter(filterParams)

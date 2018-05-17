@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: C:\kompose\kompose.exe convert -f docker-compose.yml
+    kompose.version: 1.13.0 (84fa826)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: reddit-news
+  name: reddit-news
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: reddit-news
+    spec:
+      containers:
+      - args:
+        - ./wait-for-it.sh
+        - -t
+        - "0"
+        - rabbitmq:5672
+        - --
+        - python
+        - reddit_news.py
+        env:
+        - name: PYTHONUNBUFFERED
+          value: "0"
+        image: pedropod/reddit_news:latest
+        name: reddit-news
+        resources: {}
+      restartPolicy: Always
+status: {}

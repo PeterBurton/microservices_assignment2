@@ -17,29 +17,44 @@ services:
       - mynetwork
   
   tweet_collection:
-    build: ./tweet_collection
-    depends_on:
-      - rabbitmq
-    links:
-      - rabbitmq
-    networks:
-      - mynetwork
-    command: ["./wait-for-it.sh", "-t", "0", "rabbitmq:5672", "--", "go", "run", "collect_publish.go"]
-    
-
-  sentiment_analysis:
-    build: ./sentiment_analysis
+    image: pedropod/tweet_collection:latest
     depends_on:
       - rabbitmq
       - datastore
+    networks:
+      - mynetwork
+    command: ["./wait-for-it.sh", "-t", "0", "rabbitmq:5672", "--", "go", "run", "collect_publish.go"]
+
+  reddit_news:
+    image: pedropod/reddit_news:latest
+    depends_on:
+      - rabbitmq
+      - datastore
+    environment:
+      - PYTHONUNBUFFERED=0
+    networks:
+      - mynetwork
+    command: ["./wait-for-it.sh", "-t", "0", "rabbitmq:5672", "--" ,"python", "reddit_news.py"]
+    
+
+  sentiment_analysis:
+    image: pedropod/sentiment_analysis:latest
+    depends_on:
+      - rabbitmq
+      - datastore
+      - tweet_collection
+      - reddit_news
+    environment:
+      - PYTHONUNBUFFERED=0
     networks:
       - mynetwork
     command: ["./wait-for-it.sh", "-t", "0", "rabbitmq:5672", "--" ,"python", "sentiment.py"]
 
   frontend:
-    build: ./frontend
+    image: pedropod/frontend:latest
     depends_on:
       - datastore
+      - sentiment_analysis
     ports:
       - 3000:3000
     networks:
@@ -48,4 +63,3 @@ services:
 
 networks: 
   mynetwork:
-
